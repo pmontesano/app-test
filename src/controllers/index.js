@@ -38,8 +38,6 @@ exports.render = (template, page) =>
   function render(req, res) {
     const initialState = res.locals.initialState;
 
-    console.log('pablito initialState', initialState);
-
     const Page = (props) =>
       page === 'exercice1' ? (
         <Exercise1Page {...props} />
@@ -48,7 +46,7 @@ exports.render = (template, page) =>
       );
 
     const component = ReactDOMServer.renderToString(
-      <Page props={initialState} />
+      <Page initialState={initialState} />
     );
 
     /**
