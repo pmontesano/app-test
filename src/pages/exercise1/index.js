@@ -1,11 +1,8 @@
 import React from 'react';
 import Range from '../../components/range';
-import '../../styles/main.css';
 
-const Exercise1 = (initialState) => {
-  const { min, max } = initialState;
-
-  console.log('min', min, 'max', max);
+const Exercise1 = ({ initialState }) => {
+  const { min, max } = initialState.data;
 
   return (
     <div>

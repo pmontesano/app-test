@@ -2,8 +2,8 @@ import React from 'react';
 
 import RangeFixed from '../../components/range';
 
-const Exercise2 = (initialState) => {
-  console.log('initialState range Fixed', initialState);
+const Exercise2 = ({ initialState }) => {
+  console.log('initialState range Fixed', initialState.data.values);
 
   return (
     <div>

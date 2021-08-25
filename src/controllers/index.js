@@ -10,9 +10,8 @@ import ReactDOMServer from 'react-dom/server';
 exports.fetchDataExercice1 = (req, res, next) => {
   getDataExercice1(req)
     .get()
-    .then((data) => {
-      res.locals.initialState = data.data;
-
+    .then((response) => {
+      res.locals.initialState = response.data;
       next();
     })
     .catch((err) => {
@@ -23,9 +22,8 @@ exports.fetchDataExercice1 = (req, res, next) => {
 exports.fetchDataExercice2 = (req, res, next) => {
   getDataExercice2(req)
     .get()
-    .then((data) => {
-      res.locals.initialState = data.data;
-
+    .then((response) => {
+      res.locals.initialState = response.data;
       next();
     })
     .catch((err) => {
@@ -38,9 +36,9 @@ exports.fetchDataExercice2 = (req, res, next) => {
  */
 exports.render = (template, page) =>
   function render(req, res) {
-    const initialState = res.locals.initialState.data;
+    const initialState = res.locals.initialState;
 
-    console.log('pablito', initialState);
+    console.log('pablito initialState', initialState);
 
     const Page = (props) =>
       page === 'exercice1' ? (

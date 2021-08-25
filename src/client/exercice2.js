@@ -1,10 +1,4 @@
-import React from 'react';
-import ReactDom from 'react-dom';
+import startApp from './start-app';
 import Excercice2 from '../pages/exercise2';
 
-const preloadedState = window._PRELOADED_STATE;
-
-ReactDom.hydrate(
-  <Excercice2 {...preloadedState} />,
-  document.getElementById('root')
-);
+startApp(Excercice2);

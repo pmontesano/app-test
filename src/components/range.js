@@ -1,7 +1,11 @@
 import React from 'react';
 
-const Range = (props) => {
-  return <div>Aca va el range</div>;
+const Range = ({ min, max }) => {
+  return (
+    <div>
+      <input />
+    </div>
+  );
 };
 
 Range.defaultProps = {};
