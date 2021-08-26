@@ -14,18 +14,21 @@ export default function DragMove(props) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handlePointerDown = (e) => {
+    console.log('handlePointerDown');
     setIsDragging(true);
 
     onPointerDown(e);
   };
 
   const handlePointerUp = (e) => {
+    console.log('handlePointerUp');
     setIsDragging(false);
 
     onPointerUp(e);
   };
 
   const handlePointerMove = (e) => {
+    console.log('handlePointerMove');
     if (isDragging) onDragMove(e);
 
     onPointerMove(e);
