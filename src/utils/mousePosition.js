@@ -1,15 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const useMousePosition = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+export default function DragMove(props) {
+  console.log('props mouse', props);
+
+  const { onMouseDown, onMouseUp, onMouseMove, children, style, className } =
+    props;
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+
+    onMouseDown(e);
+  };
+
+  const handleMouseUp = (e) => {
+    setIsDragging(false);
+
+    onMouseUp(e);
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) onDragMove(e);
+
+    onMouseMove(e);
+  };
 
   useEffect(() => {
-    const setFromEvent = (e) => setPosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', setFromEvent);
+    window.addEventListener('Mouseup', handleMouseUp);
+
     return () => {
-      window.removeEventListener('mousemove', setFromEvent);
+      window.removeEventListener('Mouseup', handleMouseUp);
     };
   }, []);
 
-  return position;
+  return (
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      style={style}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+}
+
+DragMove.defaultProps = {
+  onMouseDown: () => {},
+  onMouseUp: () => {},
+  onMouseMove: () => {},
 };
