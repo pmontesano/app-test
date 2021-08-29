@@ -5,6 +5,7 @@ const root = (component, bundle, initialState) =>
         <script>window._PRELOADED_STATE = ${JSON.stringify({
           initialState,
         })}</script>
+        <link rel="stylesheet" type="text/css" href="/static/${bundle}.css" />
         </head>
         <body>
         <div id="root">${component}</div>
