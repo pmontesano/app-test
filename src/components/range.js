@@ -1,171 +1,193 @@
 import React, { useState } from 'react';
+import MousePosition from '../utils/mousePosition';
+
+const namespace = 'range-slider';
 
 const Range = ({ min, max }) => {
   const minRangeTrack = min;
   const maxRangeTrack = max * 3;
 
-  const [translateMinRange, setTranslateMinRange] = useState({
-    x: minRangeTrack,
-  });
-
-  const [translateMaxRange, setTranslateMaxRange] = useState({
-    x: maxRangeTrack,
-  });
-
   const [rangeValues, setRangeValues] = useState({
     minValue: min,
     maxValue: max,
+    translateMinRange: minRangeTrack,
+    translateMaxRange: maxRangeTrack,
   });
 
-  const [isMoving, setIsMoving] = useState(false);
+  const [isRangeMoving, setIsRangeMoving] = useState({
+    minRange: false,
+    maxRange: false,
+  });
 
-  const handleMouseDown = (e) => {
-    const el = e.target;
-    setIsMoving(true);
-    el.addEventListener('mousedown', handleMouseDown);
+  const validationtranslate = (translateRange, rangeType, limitRange, e) => {
+    switch (translateRange) {
+      case minRangeTrack:
+        return translateRange + e.movementX;
+      case maxRangeTrack:
+        return translateRange - e.movementX;
+      case limitRange:
+        if (rangeType === 'range-min') {
+          return translateRange - e.movementX - 10;
+        } else if (rangeType === 'range-max') {
+          return translateRange + e.movementX + 10;
+        }
+      default:
+        if (translateRange <= minRangeTrack) {
+          return minRangeTrack + e.movementX;
+        } else if (translateRange >= maxRangeTrack) {
+          return maxRangeTrack + e.movementX;
+        } else {
+          return translateRange + e.movementX;
+        }
+    }
   };
 
-  const handleMouseUp = (e) => {
-    const el = e.target;
-    setIsMoving(false);
-    el.removeEventListener('mouseup', handleMouseUp);
-  };
+  const handleRangeMinMove = (e, isMoving) => {
+    const limitRange =
+      rangeValues.translateMaxRange - e.target.getBoundingClientRect().width;
 
-  const handleMouseLeave = (e) => {
-    const el = e.target;
-    setIsMoving(false);
-    el.removeEventListener('mouseleave', handleMouseLeave);
-  };
-
-  const handleRangeMinMove = (e) => {
-    if (isMoving) handleDragMoveLeft(e);
-    setRangeValues({
-      ...rangeValues,
-      minValue:
-        translateMinRange.x === min ? min : Math.floor(translateMinRange.x / 3),
-    });
-  };
-
-  const handleRangeMaxMove = (e) => {
-    if (isMoving) handleDragMoveRight(e);
-    setRangeValues({
-      ...rangeValues,
-      maxValue:
-        translateMaxRange.x === max ? max : Math.floor(translateMaxRange.x / 3),
-    });
-  };
-
-  const handleDragMoveLeft = (e) => {
-    const el = e.target;
-    const limit = translateMaxRange.x - el.getBoundingClientRect().width;
-
-    if (translateMinRange.x === limit) {
-      console.log('es igual al limit');
-      setTranslateMinRange({
-        x: translateMinRange.x - e.movementX - 5,
-      });
-    } else if (translateMinRange.x <= minRangeTrack) {
-      console.log('es menor a 1');
-      setTranslateMinRange({
-        x: 1 + e.movementX,
+    if (isMoving) {
+      setIsRangeMoving({
+        ...isRangeMoving,
+        minRange: true,
       });
     } else {
-      console.log('else de todo lo demas');
-      setTranslateMinRange({
-        x: translateMinRange.x + e.movementX,
+      setIsRangeMoving({
+        ...isRangeMoving,
+        minRange: false,
       });
     }
 
-    // setTranslateMinRange({
-    //   x:
-    //     translateMinRange.x >= minRangeTrack && translateMinRange.x <= limit
-    //       ? translateMinRange.x + e.movementX
-    //       : 5 + e.movementX,
-    // });
+    setRangeValues({
+      ...rangeValues,
+      minValue:
+        rangeValues.translateMinRange === min
+          ? min
+          : Math.floor(rangeValues.translateMinRange / 3),
+      translateMinRange: validationtranslate(
+        rangeValues.translateMinRange,
+        'range-min',
+        limitRange,
+        e
+      ),
+      rangeMinIsActive: true,
+    });
   };
 
-  const handleDragMoveRight = (e) => {
-    setTranslateMaxRange({
-      x: translateMaxRange.x + e.movementX,
+  const handleRangeMaxMove = (e, isMoving) => {
+    const limitRange =
+      rangeValues.translateMinRange + e.target.getBoundingClientRect().width;
+
+    if (isMoving) {
+      setIsRangeMoving({
+        ...isRangeMoving,
+        maxRange: true,
+      });
+    } else {
+      setIsRangeMoving({
+        ...isRangeMoving,
+        maxRange: false,
+      });
+    }
+
+    setRangeValues({
+      ...rangeValues,
+      maxValue:
+        rangeValues.translateMaxRange === max
+          ? max
+          : Math.floor(rangeValues.translateMaxRange / 3),
+      translateMaxRange: validationtranslate(
+        rangeValues.translateMaxRange,
+        'range-max',
+        limitRange,
+        e
+      ),
     });
   };
 
   const handleChangeMinValue = (min, max) => (e) => {
     const newValue =
-      e.target.value > max || e.target.value < 0 ? min : e.target.value;
+      e.target.value > max ||
+      e.target.value < 0 ||
+      e.target.value >= rangeValues.maxValue
+        ? min
+        : e.target.value;
 
     setRangeValues({
       ...rangeValues,
       minValue: newValue,
-    });
-
-    setTranslateMinRange({
-      x: newValue * 3,
+      translateMinRange: newValue * 3,
     });
   };
 
   const handleChangeMaxValue = (min, max) => (e) => {
-    const newValue = e.target.value > max ? max : e.target.value;
+    const newValue =
+      e.target.value > max ||
+      e.target.value < 0 ||
+      e.target.value <= rangeValues.minValue
+        ? max
+        : e.target.value;
 
     setRangeValues({
       ...rangeValues,
       maxValue: newValue,
-    });
-
-    setTranslateMaxRange({
-      x: newValue * 3,
+      translateMaxRange: newValue * 3,
     });
   };
 
   return (
-    <div className="range-slider-container">
-      <span>
+    <div className={`${namespace}-container`}>
+      <label
+        className={`${namespace}-label range-slider-label--left`}
+        htmlFor="rangeValueMin"
+      >
         <input
-          className="range-slider-input"
+          className={`${namespace}-input`}
           value={rangeValues.minValue}
           type="number"
           onChange={handleChangeMinValue(min, max)}
+          id="rangeValueMin"
         />
         €
-      </span>
-      <div className="range-slider">
-        <div
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleRangeMinMove}
-          onMouseLeave={handleMouseLeave}
-          className="range-slider__handle range-slider__handle--min"
-          style={{
-            transform: `translateX(${translateMinRange.x}px)`,
-          }}
-        ></div>
-        <div className="range-slider__track"></div>
-        <div
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleRangeMaxMove}
-          onMouseLeave={handleMouseLeave}
-          className={`range-slider__handle range-slider__handle--max ${
-            isMoving ? ' range-slider__handle--is-moving' : ''
-          }`}
-          style={{
-            transform: `translateX(${translateMaxRange.x}px)`,
-          }}
-        ></div>
+      </label>
+      <div className={namespace}>
+        <MousePosition onMovePosition={handleRangeMinMove}>
+          <div
+            className={`${namespace}__handle ${namespace}__handle--min ${
+              isRangeMoving.minRange ? `${namespace}__handle--is-active` : ''
+            }`}
+            style={{
+              transform: `translateX(${rangeValues.translateMinRange}px)`,
+            }}
+          ></div>
+        </MousePosition>
+        <div className={`${namespace}__track`}></div>
+        <MousePosition onMovePosition={handleRangeMaxMove}>
+          <div
+            className={`${namespace}__handle ${namespace}__handle--max ${
+              isRangeMoving.maxRange ? `${namespace}__handle--is-active` : ''
+            }`}
+            style={{
+              transform: `translateX(${rangeValues.translateMaxRange}px)`,
+            }}
+          ></div>
+        </MousePosition>
       </div>
-      <span>
+      <label
+        className={`${namespace}-label range-slider-label--right`}
+        htmlFor="rangeValueMax"
+      >
         <input
-          className="range-slider-input"
+          className={`${namespace}-input`}
           value={rangeValues.maxValue}
           type="number"
           onChange={handleChangeMaxValue(min, max)}
+          id="rangeValueMax"
         />
         €
-      </span>
+      </label>
     </div>
   );
 };
-
-Range.defaultProps = {};
 
 export default Range;

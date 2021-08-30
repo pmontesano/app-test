@@ -1,5 +1,5 @@
 body {
-  background: #ededed;
+  background: #e8e8e8;
   text-align: center;
   user-select: none;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
@@ -9,7 +9,7 @@ body {
 .range-slider-container {
   display: flex;
   align-items: center;
-  max-width: 500px;
+  max-width: 510px;
   margin: 60px auto;
 }
 
@@ -17,44 +17,78 @@ body {
   position: relative;
   width: 300px;
   margin: auto;
+  margin-right: 50px;
+}
+
+.range-slider-label {
+  position: relative;
+  width: 65px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 3px;
+  background: linear-gradient(#555, #454545);
+  color: #fff;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.range-slider-label--left::before {
+  position: absolute;
+  top: 8px;
+  right: -7px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-right: 7px solid #2c3e50;
+  border-bottom: 7px solid transparent;
+  content: '';
+  transform: rotate(180deg);
+}
+
+.range-slider-label--right::after {
+  position: absolute;
+  top: 8px;
+  left: -7px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-right: 7px solid #2c3e50;
+  border-bottom: 7px solid transparent;
+  content: '';
 }
 
 .range-slider-input {
-  width: 45px;
-  background-color: #656262;
   border: 0;
-  border-radius: 4px;
-  padding: 7px;
-  color: #fff;
-  font-size: 14px;
-  margin-right: 5px;
+  font-size: inherit;
+  color: inherit;
+  background-color: #454545;
+  width: 45px;
+}
+
+.range-slider-input:focus-visible {
+  outline: 0;
 }
 
 .range-slider__track {
-  height: 12px;
-  background-color: #ccc;
-  border-radius: 20px;
+  height: 20px;
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  border-radius: 10px;
+  width: 330px;
 }
 
 .range-slider__handle {
-  width: 28px;
-  height: 28px;
-  top: -8px;
-  cursor: ew-resize;
+  width: 32px;
+  height: 32px;
+  top: -5px;
   border-radius: 50%;
   position: absolute;
-  transition: all 0.5;
+  cursor: pointer;
+  background: linear-gradient(#555, #454545);
 }
 
-.range-slider__handle--min {
-  background-color: #3d77f8;
-}
-
-.range-slider__handle--is-moving {
-  width: 34px;
-  height: 34px;
-}
-
-.range-slider__handle--max {
-  background-color: #ff0000;
+.range-slider__handle--is-active {
+  width: 38px;
+  height: 38px;
+  cursor: ew-resize;
 }

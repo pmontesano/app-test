@@ -6,6 +6,7 @@ export default function MousePosition(props) {
     onMouseUp,
     onMouseLeave,
     onMouseMove,
+    onMovePosition,
     children,
     style,
     className,
@@ -14,25 +15,25 @@ export default function MousePosition(props) {
   const [isMoving, setIsMoving] = useState(false);
 
   const handleMouseDown = (e) => {
-    const el = e.target;
     setIsMoving(true);
-    el.addEventListener('mousedown', onMouseDown);
+    e.target.addEventListener('mousedown', onMouseDown);
   };
 
   const handleMouseUp = (e) => {
-    const el = e.target;
     setIsMoving(false);
-    el.removeEventListener('mouseup', onMouseUp);
+    onMovePosition(e, false);
+    e.target.removeEventListener('mouseup', onMouseUp);
   };
 
   const handleMouseLeave = (e) => {
-    const el = e.target;
     setIsMoving(false);
-    el.removeEventListener('mouseleave', onMouseLeave);
+    onMovePosition(e, false);
+    e.target.removeEventListener('mouseleave', onMouseLeave);
   };
 
   const handleMouseMove = (e) => {
-    if (isDragging) onMouseMove(e);
+    if (isMoving) onMovePosition(e, isMoving);
+    onMouseMove(e);
   };
 
   return (
