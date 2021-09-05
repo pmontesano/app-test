@@ -7,7 +7,13 @@ const Exercise1 = ({ initialState }) => {
   return (
     <div>
       <h1>Normal Range</h1>
-      <Range min={min} max={max} />
+      <Range
+        min={min}
+        max={max}
+        onChange={({ min, max }) => {
+          min, max;
+        }}
+      />
     </div>
   );
 };

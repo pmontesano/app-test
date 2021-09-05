@@ -54,4 +54,5 @@ MousePosition.defaultProps = {
   onMouseDown: () => {},
   onMouseUp: () => {},
   onMouseMove: () => {},
+  onMouseLeave: () => {},
 };

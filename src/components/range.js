@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import MousePosition from '../utils/mousePosition';
 
 const namespace = 'range-slider';
 
-const Range = ({ min, max }) => {
-  const minRangeTrack = min;
-  const maxRangeTrack = max * 3;
+const Range = ({ min, max, onChange }) => {
+  const minRangeTrack = 1;
+  const maxRangeTrack = 300;
+  const minValueRef = useRef(min);
+  const maxValueRef = useRef(max);
+  const range = useRef(null);
 
   const [rangeValues, setRangeValues] = useState({
     minValue: min,
@@ -19,33 +22,88 @@ const Range = ({ min, max }) => {
     maxRange: false,
   });
 
-  const validationtranslate = (translateRange, rangeType, limitRange, e) => {
-    switch (translateRange) {
-      case minRangeTrack:
-        return translateRange + e.movementX;
-      case maxRangeTrack:
-        return translateRange - e.movementX;
-      case limitRange:
-        if (rangeType === 'range-min') {
-          return translateRange - e.movementX - 10;
-        } else if (rangeType === 'range-max') {
-          return translateRange + e.movementX + 10;
-        }
-      default:
-        if (translateRange <= minRangeTrack) {
-          return minRangeTrack + e.movementX;
-        } else if (translateRange >= maxRangeTrack) {
-          return maxRangeTrack + e.movementX;
-        } else {
-          return translateRange + e.movementX;
-        }
+  const { minValue, maxValue, translateMinRange, translateMaxRange } =
+    rangeValues;
+
+  const getPercent = useCallback(
+    (value) => {
+      return Math.round(((value - min) / (max - min)) * 100);
+    },
+    [min, max]
+  );
+
+  useEffect(() => {
+    const minPercent = getPercent(minValue);
+    const maxPercent = getPercent(maxValueRef.current.value);
+
+    if (minValueRef.current) {
+      if (minValueRef.current.value <= min) {
+        minValueRef.current.value = min;
+        setRangeValues({
+          ...rangeValues,
+          minValue: minValueRef.current.value,
+        });
+        minValueRef.current.style.left = `${min - 1}%`;
+      } else {
+        minValueRef.current.style.left = `${minPercent}%`;
+      }
+    }
+
+    if (range.current) {
+      range.current.style.left = `${minPercent}%`;
+      range.current.style.width = `${maxPercent - minPercent}%`;
+    }
+  }, [minValue, getPercent]);
+
+  useEffect(() => {
+    const minPercent = getPercent(minValueRef.current.value);
+    const maxPercent = getPercent(maxValue);
+
+    if (maxValueRef.current) {
+      if (maxValueRef.current.value >= max) {
+        maxValueRef.current.value = max;
+        setRangeValues({
+          ...rangeValues,
+          maxValue: maxValueRef.current.value,
+        });
+        maxValueRef.current.style.left = `${max}%`;
+      } else {
+        maxValueRef.current.style.left = `${maxPercent}%`;
+      }
+    }
+
+    if (range.current) {
+      range.current.style.width = `${maxPercent - minPercent + 1}%`;
+    }
+  }, [maxValue, getPercent]);
+
+  useEffect(() => {
+    if (translateMinRange < minRangeTrack) {
+      setRangeValues({
+        ...rangeValues,
+        translateMinRange: minRangeTrack,
+      });
+    }
+
+    if (translateMaxRange > maxRangeTrack) {
+      setRangeValues({
+        ...rangeValues,
+        translateMaxRange: maxRangeTrack,
+      });
+    }
+  }, [translateMinRange, translateMaxRange]);
+
+  const validationtranslate = (translateRange, rangeType, e) => {
+    if (rangeType === 'range-min' && minValue >= maxValue) {
+      return translateRange - 5;
+    } else if (rangeType === 'range-max' && maxValue <= minValue) {
+      return translateRange + 5;
+    } else {
+      return translateRange + e.movementX;
     }
   };
 
   const handleRangeMinMove = (e, isMoving) => {
-    const limitRange =
-      rangeValues.translateMaxRange - e.target.getBoundingClientRect().width;
-
     if (isMoving) {
       setIsRangeMoving({
         ...isRangeMoving,
@@ -60,24 +118,12 @@ const Range = ({ min, max }) => {
 
     setRangeValues({
       ...rangeValues,
-      minValue:
-        rangeValues.translateMinRange === min
-          ? min
-          : Math.floor(rangeValues.translateMinRange / 3),
-      translateMinRange: validationtranslate(
-        rangeValues.translateMinRange,
-        'range-min',
-        limitRange,
-        e
-      ),
-      rangeMinIsActive: true,
+      minValue: minValue < min ? min : Math.floor(translateMinRange / 3),
+      translateMinRange: validationtranslate(translateMinRange, 'range-min', e),
     });
   };
 
   const handleRangeMaxMove = (e, isMoving) => {
-    const limitRange =
-      rangeValues.translateMinRange + e.target.getBoundingClientRect().width;
-
     if (isMoving) {
       setIsRangeMoving({
         ...isRangeMoving,
@@ -92,58 +138,78 @@ const Range = ({ min, max }) => {
 
     setRangeValues({
       ...rangeValues,
-      maxValue:
-        rangeValues.translateMaxRange === max
-          ? max
-          : Math.floor(rangeValues.translateMaxRange / 3),
-      translateMaxRange: validationtranslate(
-        rangeValues.translateMaxRange,
-        'range-max',
-        limitRange,
-        e
-      ),
+      maxValue: Math.floor(translateMaxRange / 3),
+      translateMaxRange: validationtranslate(translateMaxRange, 'range-max', e),
     });
   };
 
   const handleChangeMinValue = (min, max) => (e) => {
-    const newValue =
-      e.target.value > max ||
-      e.target.value < 0 ||
-      e.target.value >= rangeValues.maxValue
-        ? min
-        : e.target.value;
+    const newValue = Math.floor(e.target.value);
 
-    setRangeValues({
-      ...rangeValues,
-      minValue: newValue,
-      translateMinRange: newValue * 3,
+    setTimeout(() => {
+      if (newValue >= maxValue) {
+        setTimeout(() => {
+          setRangeValues({
+            ...rangeValues,
+          });
+        }, 2000);
+      } else if (newValue < min) {
+        setTimeout(() => {
+          setRangeValues({
+            ...rangeValues,
+            minValue: min,
+          });
+        }, 2000);
+      } else {
+        setRangeValues({
+          ...rangeValues,
+          minValue: newValue,
+          translateMinRange: newValue * 3,
+        });
+      }
     });
   };
 
   const handleChangeMaxValue = (min, max) => (e) => {
-    const newValue =
-      e.target.value > max ||
-      e.target.value < 0 ||
-      e.target.value <= rangeValues.minValue
-        ? max
-        : e.target.value;
+    const newValue = Math.floor(e.target.value);
 
-    setRangeValues({
-      ...rangeValues,
-      maxValue: newValue,
-      translateMaxRange: newValue * 3,
+    setTimeout(() => {
+      if (newValue <= minValue) {
+        setTimeout(() => {
+          setRangeValues({
+            ...rangeValues,
+          });
+        }, 2000);
+      } else if (newValue > max) {
+        setTimeout(() => {
+          setRangeValues({
+            ...rangeValues,
+            maxValue: max,
+          });
+        }, 2000);
+      } else {
+        setRangeValues({
+          ...rangeValues,
+          maxValue: newValue,
+          translateMaxRange: newValue * 3,
+        });
+      }
     });
   };
 
+  useEffect(() => {
+    onChange({ minValue, maxValue });
+  }, [minValue, maxValue, onChange]);
+
   return (
-    <div className={`${namespace}-container`}>
+    <div className={`${namespace}-wrapper`}>
       <label
         className={`${namespace}-label range-slider-label--left`}
         htmlFor="rangeValueMin"
       >
         <input
           className={`${namespace}-input`}
-          value={rangeValues.minValue}
+          value={minValue}
           type="number"
           onChange={handleChangeMinValue(min, max)}
           id="rangeValueMin"
@@ -151,27 +217,33 @@ const Range = ({ min, max }) => {
         €
       </label>
       <div className={namespace}>
-        <MousePosition onMovePosition={handleRangeMinMove}>
-          <div
-            className={`${namespace}__handle ${namespace}__handle--min ${
+        <MousePosition
+          onMovePosition={handleRangeMinMove}
+          className={`${namespace}__thumb`}
+        >
+          <button
+            ref={minValueRef}
+            value={minValue}
+            className={`${namespace}__handle ${namespace}__handle--left ${
               isRangeMoving.minRange ? `${namespace}__handle--is-active` : ''
             }`}
-            style={{
-              transform: `translateX(${rangeValues.translateMinRange}px)`,
-            }}
-          ></div>
+            style={{ zIndex: minValue > max - 10 && '20' }}
+          ></button>
         </MousePosition>
-        <div className={`${namespace}__track`}></div>
-        <MousePosition onMovePosition={handleRangeMaxMove}>
-          <div
-            className={`${namespace}__handle ${namespace}__handle--max ${
+        <MousePosition
+          onMovePosition={handleRangeMaxMove}
+          className={`${namespace}__thumb`}
+        >
+          <button
+            ref={maxValueRef}
+            value={maxValue}
+            className={`${namespace}__handle ${namespace}__handle--right ${
               isRangeMoving.maxRange ? `${namespace}__handle--is-active` : ''
             }`}
-            style={{
-              transform: `translateX(${rangeValues.translateMaxRange}px)`,
-            }}
-          ></div>
+          ></button>
         </MousePosition>
+
+        <div ref={range} className={`${namespace}__track`} />
       </div>
       <label
         className={`${namespace}-label range-slider-label--right`}
@@ -179,7 +251,7 @@ const Range = ({ min, max }) => {
       >
         <input
           className={`${namespace}-input`}
-          value={rangeValues.maxValue}
+          value={maxValue}
           type="number"
           onChange={handleChangeMaxValue(min, max)}
           id="rangeValueMax"
