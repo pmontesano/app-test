@@ -3,7 +3,7 @@ import MousePosition from '../utils/mousePosition';
 
 const namespace = 'range-slider';
 
-const Range = ({ min, max, onChange }) => {
+const RangeFixed = ({ min, max, values, onChange }) => {
   const minRangeTrack = 1;
   const maxRangeTrack = 300;
   const minValueRef = useRef(min);
@@ -27,6 +27,16 @@ const Range = ({ min, max, onChange }) => {
 
   const getPercent = useCallback(
     (value) => {
+      console.log('value --->', value);
+
+      // [1.99, 5.99, 10.99, 30.99, 50.99, 70.99]
+
+      const slots = 100 / values.length;
+
+      console.log('slots', slots);
+
+      console.log('70.99-->', Math.round((1 / value) * value));
+
       return Math.round(((value - min) / (max - min)) * 100);
     },
     [min, max]
@@ -143,79 +153,15 @@ const Range = ({ min, max, onChange }) => {
     });
   };
 
-  const handleChangeMinValue = (min, max) => (e) => {
-    const newValue = Math.floor(e.target.value);
-
-    setTimeout(() => {
-      if (newValue >= maxValue) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-          });
-        }, 500);
-      } else if (newValue < min) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-            minValue: min,
-          });
-        }, 500);
-      } else {
-        setRangeValues({
-          ...rangeValues,
-          minValue: newValue,
-          translateMinRange: newValue * 3,
-        });
-      }
-    });
-  };
-
-  const handleChangeMaxValue = (min, max) => (e) => {
-    const newValue = Math.floor(e.target.value);
-
-    setTimeout(() => {
-      if (newValue <= minValue) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-          });
-        }, 2000);
-      } else if (newValue > max) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-            maxValue: max,
-          });
-        }, 2000);
-      } else {
-        setRangeValues({
-          ...rangeValues,
-          maxValue: newValue,
-          translateMaxRange: newValue * 3,
-        });
-      }
-    });
-  };
-
   useEffect(() => {
     onChange({ minValue, maxValue });
   }, [minValue, maxValue, onChange]);
 
   return (
     <div className={`${namespace}-wrapper`}>
-      <label
-        className={`${namespace}-label range-slider-label--left`}
-        htmlFor="rangeValueMin"
-      >
-        <input
-          className={`${namespace}-input`}
-          value={minValue}
-          type="number"
-          onChange={handleChangeMinValue(min, max)}
-          id="rangeValueMin"
-        />
-        €
-      </label>
+      <div className={`${namespace}-label range-slider-label--left`}>
+        {minValue} €
+      </div>
       <div className={namespace}>
         <MousePosition
           onMovePosition={handleRangeMinMove}
@@ -245,21 +191,11 @@ const Range = ({ min, max, onChange }) => {
 
         <div ref={range} className={`${namespace}__track`} />
       </div>
-      <label
-        className={`${namespace}-label range-slider-label--right`}
-        htmlFor="rangeValueMax"
-      >
-        <input
-          className={`${namespace}-input`}
-          value={maxValue}
-          type="number"
-          onChange={handleChangeMaxValue(min, max)}
-          id="rangeValueMax"
-        />
-        €
-      </label>
+      <div className={`${namespace}-label range-slider-label--right`}>
+        {maxValue} €
+      </div>
     </div>
   );
 };
 
-export default Range;
+export default RangeFixed;

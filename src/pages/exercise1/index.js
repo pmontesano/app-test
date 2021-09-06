@@ -5,7 +5,7 @@ const Exercise1 = ({ initialState }) => {
   const { min, max } = initialState.data;
 
   return (
-    <div>
+    <div className="container">
       <h1>Normal Range</h1>
       <Range
         min={min}
