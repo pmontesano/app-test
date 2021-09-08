@@ -27,24 +27,31 @@ const RangeFixed = ({ min, max, values, onChange }) => {
 
   const getPercent = useCallback(
     (value) => {
-      console.log('value --->', value);
-
       // [1.99, 5.99, 10.99, 30.99, 50.99, 70.99]
 
       const slots = 100 / values.length;
-
-      console.log('slots', slots);
-
-      console.log('70.99-->', Math.round((1 / value) * value));
 
       return Math.round(((value - min) / (max - min)) * 100);
     },
     [min, max]
   );
 
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function getValueFromPosition(position, minValue, maxValue, clientRect) {
+    const sizePerc = getPercentageFromPosition(position, clientRect);
+    const valueDiff = maxValue - minValue;
+
+    return minValue + valueDiff * sizePerc;
+  }
+
   useEffect(() => {
-    const minPercent = getPercent(minValue);
+    const minPercent = clamp(minValue, min, max);
     const maxPercent = getPercent(maxValueRef.current.value);
+
+    console.log('pablito campl', clamp(minValue, min, max));
 
     if (minValueRef.current) {
       if (minValueRef.current.value <= min) {

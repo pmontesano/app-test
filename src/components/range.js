@@ -17,6 +17,13 @@ const Range = ({ min, max, onChange }) => {
     translateMaxRange: maxRangeTrack,
   });
 
+  const [inputValue, setInputValue] = useState({
+    inputMinValue: min,
+    inputMaxValue: max,
+    isTyping: false,
+    typingTimeout: 0,
+  });
+
   const [isRangeMoving, setIsRangeMoving] = useState({
     minRange: false,
     maxRange: false,
@@ -24,6 +31,8 @@ const Range = ({ min, max, onChange }) => {
 
   const { minValue, maxValue, translateMinRange, translateMaxRange } =
     rangeValues;
+
+  const { inputMinValue, inputMaxValue, isTyping, typingTimeout } = inputValue;
 
   const getPercent = useCallback(
     (value) => {
@@ -143,58 +152,75 @@ const Range = ({ min, max, onChange }) => {
     });
   };
 
-  const handleChangeMinValue = (min, max) => (e) => {
-    const newValue = Math.floor(e.target.value);
+  const handleMinChangeValue =
+    (inputValueType, valueType, translateType) => (e) => {
+      const newValue = e.target.value;
 
-    setTimeout(() => {
-      if (newValue >= maxValue) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-          });
-        }, 500);
-      } else if (newValue < min) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-            minValue: min,
-          });
-        }, 500);
-      } else {
-        setRangeValues({
-          ...rangeValues,
-          minValue: newValue,
-          translateMinRange: newValue * 3,
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+        setInputValue({
+          isTyping: false,
         });
       }
-    });
-  };
 
-  const handleChangeMaxValue = (min, max) => (e) => {
-    const newValue = Math.floor(e.target.value);
+      setInputValue({
+        inputMinValue: newValue,
+        inputMaxValue: maxValue,
+        isTyping: true,
+        typingTimeout: setTimeout(() => {
+          validationValue(Math.floor(newValue), valueType, translateType);
+          isTyping;
+        }, 1000),
+      });
+    };
 
-    setTimeout(() => {
-      if (newValue <= minValue) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-          });
-        }, 2000);
-      } else if (newValue > max) {
-        setTimeout(() => {
-          setRangeValues({
-            ...rangeValues,
-            maxValue: max,
-          });
-        }, 2000);
-      } else {
-        setRangeValues({
-          ...rangeValues,
-          maxValue: newValue,
-          translateMaxRange: newValue * 3,
+  const handleMaxChangeValue =
+    (inputValueType, valueType, translateType) => (e) => {
+      const newValue = e.target.value;
+
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+        setInputValue({
+          isTyping: false,
         });
       }
-    });
+
+      setInputValue({
+        inputMinValue: minValue,
+        inputMaxValue: newValue,
+        isTyping: true,
+        typingTimeout: setTimeout(() => {
+          validationValue(Math.floor(newValue), valueType, translateType);
+          isTyping;
+        }, 1000),
+      });
+    };
+
+  const validationValue = (newValue, valueType, translateType) => {
+    if (
+      newValue < min ||
+      newValue > max ||
+      (valueType === 'minValue' && newValue >= maxValue) ||
+      (valueType === 'maxValue' && newValue <= minValue)
+    ) {
+      setRangeValues({
+        ...rangeValues,
+      });
+      setInputValue({
+        ...inputValue,
+        isTyping: false,
+      });
+    } else {
+      setRangeValues({
+        ...rangeValues,
+        [valueType]: newValue,
+        [translateType]: newValue * 3,
+      });
+      setInputValue({
+        ...inputValue,
+        isTyping: false,
+      });
+    }
   };
 
   useEffect(() => {
@@ -209,9 +235,13 @@ const Range = ({ min, max, onChange }) => {
       >
         <input
           className={`${namespace}-input`}
-          value={minValue}
+          value={isTyping ? inputMinValue : minValue}
           type="number"
-          onChange={handleChangeMinValue(min, max)}
+          onChange={handleMinChangeValue(
+            'inputMinValue',
+            'minValue',
+            'translateMinRange'
+          )}
           id="rangeValueMin"
         />
         €
@@ -251,9 +281,13 @@ const Range = ({ min, max, onChange }) => {
       >
         <input
           className={`${namespace}-input`}
-          value={maxValue}
+          value={isTyping ? inputMaxValue : maxValue}
           type="number"
-          onChange={handleChangeMaxValue(min, max)}
+          onChange={handleMaxChangeValue(
+            'inputMaxValue',
+            'maxValue',
+            'translateMaxRange'
+          )}
           id="rangeValueMax"
         />
         €
