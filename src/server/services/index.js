@@ -11,8 +11,6 @@ const get = (req, url) => () =>
   });
 
 const service = (req, url) => {
-  console.log('url', url);
-
   if (!req) {
     // eslint-disable-next-line
     console.warn('services/searches: you must provide a req object');
