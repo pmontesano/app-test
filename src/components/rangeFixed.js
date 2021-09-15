@@ -320,7 +320,6 @@ const RangeFixed = ({ min, max, values, onChange }) => {
             className={`${namespace}__handle ${namespace}__handle--right  ${namespace}__handle-fixed--right ${
               isRangeMoving.maxRange ? `${namespace}__handle--is-active` : ''
             }`}
-            style={{ left: '83%' }}
           ></button>
         </MousePosition>
         <div className={`${namespace}-fixed__track`}>
