@@ -287,6 +287,10 @@ const RangeFixed = ({ min, max, values, onChange }) => {
     }
   };
 
+  useEffect(() => {
+    onChange({ minValue, maxValue });
+  }, [minValue, maxValue, onChange]);
+
   return (
     <div className={`${namespace}-wrapper ${namespace}-fixed`}>
       <div className={`${namespace}-label range-slider-label--left`}>

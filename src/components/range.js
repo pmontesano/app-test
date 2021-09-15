@@ -237,6 +237,7 @@ const Range = ({ min, max, onChange }) => {
       </label>
       <div className={namespace}>
         <MousePosition
+          data-test="dateTab1"
           onMovePosition={handleRangeMinMove}
           className={`${namespace}__thumb`}
         >

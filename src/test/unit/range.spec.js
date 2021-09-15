@@ -78,11 +78,4 @@ describe('Range', () => {
       expect(maxValue.props().value).toEqual(80);
     });
   });
-
-  describe('Change State of Values', () => {
-    wrapper = shallow(<Range {...props} />);
-    const setState = jest.fn();
-    const useStateSpy = jest.spyOn(React, 'useState');
-    useStateSpy.mockImplementation((init) => [init, setState]);
-  });
 });
