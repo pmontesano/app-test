@@ -1,0 +1,117 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RangeFixed should render correctly 1`] = `
+<div
+  className="range-slider-wrapper range-slider-fixed"
+>
+  <div
+    className="range-slider-label range-slider-label--left"
+  >
+    1.99
+     €
+  </div>
+  <div
+    className="range-slider"
+  >
+    <div
+      className="range-slider__thumb"
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseMove={[Function]}
+      onMouseUp={[Function]}
+    >
+      <button
+        className="range-slider__handle range-slider__handle--left range-slider__handle-fixed--left "
+        style={
+          Object {
+            "zIndex": false,
+          }
+        }
+        value={1}
+      />
+    </div>
+    <div
+      className="range-slider__thumb"
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseMove={[Function]}
+      onMouseUp={[Function]}
+    >
+      <button
+        className="range-slider__handle range-slider__handle--right  range-slider__handle-fixed--right "
+        style={
+          Object {
+            "left": "83%",
+          }
+        }
+        value={100}
+      />
+    </div>
+    <div
+      className="range-slider-fixed__track"
+    >
+      <svg
+        height="10"
+        role="presentation"
+        width="100%"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          className="range-slider-fixed__tick"
+          height="10"
+          value={1.99}
+          width="1"
+          x="0%"
+          y="3"
+        />
+        <rect
+          className="range-slider-fixed__tick"
+          height="10"
+          value={5.99}
+          width="1"
+          x="16%"
+          y="3"
+        />
+        <rect
+          className="range-slider-fixed__tick"
+          height="10"
+          value={10.99}
+          width="1"
+          x="33%"
+          y="3"
+        />
+        <rect
+          className="range-slider-fixed__tick"
+          height="10"
+          value={30.99}
+          width="1"
+          x="50%"
+          y="3"
+        />
+        <rect
+          className="range-slider-fixed__tick"
+          height="10"
+          value={50.99}
+          width="1"
+          x="66%"
+          y="3"
+        />
+        <rect
+          className="range-slider-fixed__tick"
+          height="10"
+          value={70.99}
+          width="1"
+          x="83%"
+          y="3"
+        />
+      </svg>
+    </div>
+  </div>
+  <div
+    className="range-slider-label range-slider-label--right"
+  >
+    70.99
+     €
+  </div>
+</div>
+`;
