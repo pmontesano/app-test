@@ -19,6 +19,9 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
 
+- [Normal Range](http://localhost:8080/exercise1)
+- [Fixed Range](http://localhost:8080/exercise2)
+
 ### `npm run test:unit`
 
 Launches the test runner in the interactive watch mode.
