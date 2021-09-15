@@ -19,6 +19,11 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
 
+- [Normal Range demo](https://fqkbj.sse.codesandbox.io/exercise1)
+- [Fixed Range demo](https://fqkbj.sse.codesandbox.io/exercise2)
+- [Normal Range local](http://localhost:8080/exercise1)
+- [Fixed Range local](http://localhost:8080/exercise2)
+
 ### `npm run test:unit`
 
 Launches the test runner in the interactive watch mode.
