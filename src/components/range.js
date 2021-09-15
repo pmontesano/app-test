@@ -6,6 +6,7 @@ const namespace = 'range-slider';
 const Range = ({ min, max, onChange }) => {
   const minRangeTrack = 1;
   const maxRangeTrack = 300;
+  const varsDiff = maxRangeTrack / max;
   const minValueRef = useRef(min);
   const maxValueRef = useRef(max);
   const range = useRef(null);
@@ -82,7 +83,7 @@ const Range = ({ min, max, onChange }) => {
     }
 
     if (range.current) {
-      range.current.style.width = `${maxPercent - minPercent + 1}%`;
+      range.current.style.width = `${maxPercent - minPercent}%`;
     }
   }, [maxValue, getPercent]);
 
@@ -102,7 +103,7 @@ const Range = ({ min, max, onChange }) => {
     }
   }, [translateMinRange, translateMaxRange]);
 
-  const validationtranslate = (translateRange, rangeType, e) => {
+  const validationTranslate = (translateRange, rangeType, e) => {
     if (rangeType === 'range-min' && minValue >= maxValue) {
       return translateRange - 5;
     } else if (rangeType === 'range-max' && maxValue <= minValue) {
@@ -127,8 +128,8 @@ const Range = ({ min, max, onChange }) => {
 
     setRangeValues({
       ...rangeValues,
-      minValue: minValue < min ? min : Math.floor(translateMinRange / 3),
-      translateMinRange: validationtranslate(translateMinRange, 'range-min', e),
+      minValue: minValue < min ? min : Math.floor(translateMinRange / varsDiff),
+      translateMinRange: validationTranslate(translateMinRange, 'range-min', e),
     });
   };
 
@@ -147,14 +148,23 @@ const Range = ({ min, max, onChange }) => {
 
     setRangeValues({
       ...rangeValues,
-      maxValue: Math.floor(translateMaxRange / 3),
-      translateMaxRange: validationtranslate(translateMaxRange, 'range-max', e),
+      maxValue: Math.floor(translateMaxRange / varsDiff),
+      translateMaxRange: validationTranslate(translateMaxRange, 'range-max', e),
     });
   };
 
-  const handleMinChangeValue =
-    (inputValueType, valueType, translateType) => (e) => {
+  const handleChangeValue =
+    (
+      inputValueType,
+      otherInputValueType,
+      valueType,
+      otherValueType,
+      translateType
+    ) =>
+    (e) => {
       const newValue = e.target.value;
+
+      const timeValidation = newValue != '' ? 500 : 2000;
 
       if (typingTimeout) {
         clearTimeout(typingTimeout);
@@ -164,35 +174,12 @@ const Range = ({ min, max, onChange }) => {
       }
 
       setInputValue({
-        inputMinValue: newValue,
-        inputMaxValue: maxValue,
+        [inputValueType]: newValue,
+        [otherInputValueType]: otherValueType,
         isTyping: true,
         typingTimeout: setTimeout(() => {
           validationValue(Math.floor(newValue), valueType, translateType);
-          isTyping;
-        }, 1000),
-      });
-    };
-
-  const handleMaxChangeValue =
-    (inputValueType, valueType, translateType) => (e) => {
-      const newValue = e.target.value;
-
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
-        setInputValue({
-          isTyping: false,
-        });
-      }
-
-      setInputValue({
-        inputMinValue: minValue,
-        inputMaxValue: newValue,
-        isTyping: true,
-        typingTimeout: setTimeout(() => {
-          validationValue(Math.floor(newValue), valueType, translateType);
-          isTyping;
-        }, 1000),
+        }, timeValidation),
       });
     };
 
@@ -214,7 +201,7 @@ const Range = ({ min, max, onChange }) => {
       setRangeValues({
         ...rangeValues,
         [valueType]: newValue,
-        [translateType]: newValue * 3,
+        [translateType]: newValue * varsDiff,
       });
       setInputValue({
         ...inputValue,
@@ -237,9 +224,11 @@ const Range = ({ min, max, onChange }) => {
           className={`${namespace}-input`}
           value={isTyping ? inputMinValue : minValue}
           type="number"
-          onChange={handleMinChangeValue(
+          onChange={handleChangeValue(
             'inputMinValue',
+            'inputMaxValue',
             'minValue',
+            maxValue,
             'translateMinRange'
           )}
           id="rangeValueMin"
@@ -270,6 +259,7 @@ const Range = ({ min, max, onChange }) => {
             className={`${namespace}__handle ${namespace}__handle--right ${
               isRangeMoving.maxRange ? `${namespace}__handle--is-active` : ''
             }`}
+            style={{ marginLeft: '-10px' }}
           ></button>
         </MousePosition>
 
@@ -283,9 +273,11 @@ const Range = ({ min, max, onChange }) => {
           className={`${namespace}-input`}
           value={isTyping ? inputMaxValue : maxValue}
           type="number"
-          onChange={handleMaxChangeValue(
+          onChange={handleChangeValue(
             'inputMaxValue',
+            'inputMinValue',
             'maxValue',
+            minValue,
             'translateMaxRange'
           )}
           id="rangeValueMax"
